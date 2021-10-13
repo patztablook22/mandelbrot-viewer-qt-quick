@@ -16,6 +16,7 @@ class Renderer : public QThread
         Q_PROPERTY(qreal scale           READ scale      WRITE setScale          NOTIFY scaleChanged)
         Q_PROPERTY(QPointF calcCenter    READ calcCenter WRITE setCalcCenter     NOTIFY calcCenterChanged)
         Q_PROPERTY(int threads           READ threads    WRITE setThreads        NOTIFY threadsChanged)
+        Q_PROPERTY(int precision         READ precision                          NOTIFY precisionChanged)
 public:
         Renderer(QObject* parent = nullptr);
         ~Renderer();
@@ -27,6 +28,7 @@ public:
         qreal scale() const;
         QPointF calcCenter() const;
         int threads() const;
+        int precision() const;
 
         void setOutSize(QSize size);
         void setScale(qreal scale);
@@ -34,6 +36,8 @@ public:
         void setThreads(int threads);
 
 signals:
+        void rendered(const QImage& image, int precision);
+        void precisionChanged();
         void outSizeChanged();
         void calcSizeChanged();
         void scaleChanged();
@@ -45,8 +49,10 @@ protected:
 private:
         void waitForChanges();
         int m_threads;
+        int m_precision;
         Instructions instructions;
         QAbstractVideoSurface* p_surface;
+        void updateImage(const QImage& image, int precision);
 };
 
 #endif // RENDERER_H

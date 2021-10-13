@@ -3,6 +3,8 @@
 #include <QMutexLocker>
 
 Instructions::Instructions()
+        : m_scale(1)
+        , m_calcCenter{0, 0}
 {
     mutex = new QMutex;
     condition = new QWaitCondition;
@@ -16,6 +18,8 @@ qreal Instructions::scale() const
 
 void Instructions::setScale(qreal scale)
 {
+        if (scale < 0.5)
+            scale = 0.5;
         QMutexLocker l(mutex);
         m_scale = scale;
         change();

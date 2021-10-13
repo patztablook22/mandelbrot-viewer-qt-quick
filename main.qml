@@ -32,6 +32,13 @@ ApplicationWindow {
         id: output
         anchors.fill: parent
         source: renderer
+
+        MouseArea {
+            anchors.fill: parent
+            onWheel: {
+                renderer.scale += wheel.angleDelta.y / 1000;
+            }
+        }
     }
 
     Options {}

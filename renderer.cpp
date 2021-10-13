@@ -8,7 +8,12 @@
 Renderer::Renderer(QObject* parent)
         : QThread(parent)
         , m_threads(QThread::idealThreadCount())
+        , m_precision(0)
 {
+    connect(
+                this, &Renderer::rendered,
+                this, &Renderer::updateImage
+    );
     start();
 }
 
@@ -28,6 +33,11 @@ void Renderer::setVideoSurface(QAbstractVideoSurface *surface)
     if (surface == p_surface || surface == nullptr)
         return;
     p_surface = surface;
+}
+
+int Renderer::precision() const
+{
+    return m_precision;
 }
 
 QSize Renderer::outSize() const
@@ -96,7 +106,7 @@ void Renderer::setThreads(int threads)
 
 void Renderer::run()
 {
-    // bureaucracy
+    // shorthands
     const auto frame_format = QVideoFrame::Format_RGB32;
     const auto image_format = QImage::Format_RGB32;
 
@@ -109,14 +119,13 @@ void Renderer::run()
         if (todo.shouldStop())
             return;
 
-        // shorten some useful vars
+        // more shorthands
         const auto& oWidth  = todo.outSize().width();
         const auto& oHeight = todo.outSize().height();
         const auto& cWidth  = todo.calcSize().width();
         const auto& cHeight = todo.calcSize().height();
         const auto& cCenter  = todo.calcCenter();
 
-        qDebug() << "changed";
         // resize buffer to width*height
         buffer.resize(oWidth * oHeight);
 
@@ -144,8 +153,16 @@ void Renderer::run()
         QRgb* image_buffer = reinterpret_cast<QRgb*>(image.bits());
         for (size_t i = 0; i < oWidth * oHeight; i++)
             image_buffer[i] = qRgb(buffer[i].i, 0, 0);
-
-
-
+        emit rendered(image, 50);
     }
+}
+
+void Renderer::updateImage(const QImage &image, int precision)
+{
+    QVideoFrame frame(image);
+    p_surface->present(frame);
+    if (m_precision == precision)
+        return;
+    m_precision = precision;
+    emit precisionChanged();
 }
