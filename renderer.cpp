@@ -118,6 +118,24 @@ void Renderer::setThreads(int threads)
     emit threadsChanged();
 }
 
+qreal Renderer::exponent() const
+{
+    return instructions.exponent();
+}
+
+void Renderer::setExponent(qreal exponent)
+{
+    if (exponent < 1)
+        exponent = 1;
+    else if (exponent > 13)
+        exponent = 13;
+    if (instructions.exponent() == exponent)
+        return;
+
+    instructions.setExponent(exponent);
+    emit exponentChanged();
+}
+
 void Renderer::run()
 {
     // shorthands
@@ -141,7 +159,8 @@ void Renderer::run()
             const auto& oHeight = todo.outSize().height();
             const auto& cWidth  = todo.calcSize().width();
             const auto& cHeight = todo.calcSize().height();
-            const auto& cCenter  = todo.calcCenter();
+            const auto& cCenter = todo.calcCenter();
+            worker.exponent     = todo.exponent();
 
             // resize buffer to width*height
             buffer.resize(oWidth * oHeight);
@@ -152,7 +171,7 @@ void Renderer::run()
 
             // set thread count
             QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
-            qDebug() << QThreadPool::globalInstance()->maxThreadCount();
+//            qDebug() << QThreadPool::globalInstance()->maxThreadCount();
 
             // prepare all of its values
             for (size_t i = 0; i < buffer.size(); i++) {

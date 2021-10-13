@@ -19,6 +19,7 @@ class Renderer : public QThread
         Q_PROPERTY(int threads           READ threads    WRITE setThreads        NOTIFY threadsChanged)
         Q_PROPERTY(int precision         READ precision                          NOTIFY precisionChanged)
         Q_PROPERTY(Palette* palette      READ palette    WRITE setPalette)
+        Q_PROPERTY(qreal exponent        READ exponent   WRITE setExponent       NOTIFY exponentChanged);
 public:
         Renderer(QObject* parent = nullptr);
         ~Renderer();
@@ -32,12 +33,14 @@ public:
         int threads() const;
         int precision() const;
         Palette* palette() const;
+        qreal exponent() const;
 
         void setOutSize(QSize size);
         void setScale(qreal scale);
         void setCalcCenter(QPointF center);
         void setThreads(int threads);
         void setPalette(Palette* palette);
+        void setExponent(qreal exponent);
 
 signals:
         void rendered(const QImage& image, int precision);
@@ -47,6 +50,7 @@ signals:
         void scaleChanged();
         void calcCenterChanged();
         void threadsChanged();
+        void exponentChanged();
 
 protected:
         void run();

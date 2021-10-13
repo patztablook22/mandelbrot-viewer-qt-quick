@@ -5,6 +5,8 @@
 Instructions::Instructions()
         : m_scale(1)
         , m_calcCenter{0, 0}
+        , m_stop(false)
+        , m_exponent(2)
 {
     mutex = new QMutex;
     condition = new QWaitCondition;
@@ -53,6 +55,18 @@ void Instructions::setCalcCenter(QPointF center)
         QMutexLocker l(mutex);
         m_calcCenter = center;
         change();
+}
+
+qreal Instructions::exponent() const
+{
+    return m_exponent;
+}
+
+void Instructions::setExponent(qreal exponent)
+{
+    QMutexLocker l(mutex);
+    m_exponent = exponent;
+    change();
 }
 
 const Instructions Instructions::getChanges()
