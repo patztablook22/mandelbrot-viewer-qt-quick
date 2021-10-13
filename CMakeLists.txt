@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
         qml.qrc
         instructions.cpp
         renderer.cpp
+        worker.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
