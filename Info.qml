@@ -15,14 +15,17 @@ Rectangle {
 
         Text {
             color: "white"
-            text: "scale: " + Math.round(renderer.scale * 100) / 100
+            text: {
+                if (renderer.precision === 0)
+                   "loading..."
+                else
+                   "precision: " + renderer.precision
+            }
         }
 
         Text {
             color: "white"
-            text: "precision: " + renderer.precision
+            text: "scale: " + Math.round(renderer.scale * 100) / 100
         }
-
-
     }
 }

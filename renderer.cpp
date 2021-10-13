@@ -9,12 +9,12 @@ Renderer::Renderer(QObject* parent)
         : QThread(parent)
         , m_threads(QThread::idealThreadCount())
         , m_precision(0)
+        , p_surface(nullptr)
 {
     connect(
                 this, &Renderer::rendered,
                 this, &Renderer::updateImage
     );
-    start();
 }
 
 Renderer::~Renderer()
@@ -32,7 +32,10 @@ void Renderer::setVideoSurface(QAbstractVideoSurface *surface)
 {
     if (surface == p_surface || surface == nullptr)
         return;
+    bool idle = (p_surface == nullptr);
     p_surface = surface;
+    if (idle)
+        start();
 }
 
 int Renderer::precision() const
@@ -141,6 +144,8 @@ void Renderer::run()
     const auto frame_format = QVideoFrame::Format_RGB32;
     const auto image_format = QImage::Format_RGB32;
 
+    QRgb* image_bits = new QRgb[2000 * 2000];
+
     // worker callable struct
     Worker worker;
 
@@ -152,6 +157,9 @@ void Renderer::run()
             const Instructions todo = instructions.getChanges();
             if (todo.shouldStop())
                     return;
+
+            m_precision = 0;
+            emit precisionChanged();
 
             // more shorthands
             const auto& oWidth  = todo.outSize().width();
@@ -166,8 +174,10 @@ void Renderer::run()
             buffer.resize(oWidth * oHeight);
 
             // visual structs
-            p_surface->start({ todo.outSize(), frame_format });
+            QVideoSurfaceFormat format(todo.outSize(), frame_format);
             QImage image(      todo.outSize(), image_format  );
+            p_surface->start(format);
+            image_bits = new QRgb[oWidth * oHeight];
 
             // set thread count
             QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
@@ -220,9 +230,12 @@ void Renderer::run()
                             if (m < 0)
                                     m = 0;
                             m = m * 256 / iteration_target;
-                            image_buffer[i] = palette->getColor(m % 256);
+//                            image_buffer[i] = palette->getColor(m % 256);
+                            image_bits[i] = palette->getColor(m % 256);
                     }
-                    emit rendered(image, iteration_target);
+
+                    QImage img(reinterpret_cast<uchar*>(image_bits), oWidth, oHeight, image_format);
+                    emit rendered(img, iteration_target);
 
                     iterations_done = iteration_target;
                     if (iterations_done == max_iterations)
@@ -238,7 +251,7 @@ void Renderer::run()
     }
 }
 
-void Renderer::updateImage(const QImage &image, int precision)
+void Renderer::updateImage(const QImage& image, int precision)
 {
         activeImage = image;
         QVideoFrame frame(image);

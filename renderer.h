@@ -45,7 +45,7 @@ public:
         Q_INVOKABLE void exportTo(QString path);
 
 signals:
-        void rendered(const QImage& image, int precision);
+        void rendered(const QImage image, int precision);
         void precisionChanged();
         void outSizeChanged();
         void calcSizeChanged();
@@ -64,6 +64,7 @@ private:
         QAbstractVideoSurface* p_surface;
         void updateImage(const QImage& image, int precision);
         QImage activeImage;
+        QVideoFrame activeFrame;
 };
 
 #endif // RENDERER_H
