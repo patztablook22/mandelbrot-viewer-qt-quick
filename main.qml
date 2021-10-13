@@ -38,6 +38,16 @@ ApplicationWindow {
             onWheel: {
                 renderer.scale += wheel.angleDelta.y / 1000;
             }
+            onClicked: {
+                let newX = renderer.calcCenter.x + (mouseX / parent.width  - 0.5) * renderer.calcSize.width
+                let newY = renderer.calcCenter.y - (mouseY / parent.height - 0.5) * renderer.calcSize.height // y goes from bottom to up
+                renderer.calcCenter = Qt.point(newX, newY)
+
+                if (mouse.button == Qt.LeftButton)
+                    renderer.scale *= 1.3
+                else
+                    renderer.scale /= 1.3
+            }
         }
     }
 

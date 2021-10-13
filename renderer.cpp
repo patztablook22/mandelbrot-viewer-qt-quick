@@ -52,7 +52,7 @@ qreal Renderer::scale() const
 
 QSizeF Renderer::calcSize() const
 {
-    return outSize();
+    return instructions.calcSize();
 }
 
 QPointF Renderer::calcCenter() const
