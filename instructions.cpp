@@ -3,11 +3,13 @@
 #include <QMutexLocker>
 
 Instructions::Instructions()
-        : m_scale(1)
+        : m_scale(10)
         , m_calcCenter{0, 0}
         , m_stop(false)
         , m_exponent(2)
 {
+    p_palette = new Palette;
+    p_palette->setSource(":/palettes/BWIron1.plt");
     mutex = new QMutex;
     condition = new QWaitCondition;
 }
@@ -66,6 +68,18 @@ void Instructions::setExponent(qreal exponent)
 {
     QMutexLocker l(mutex);
     m_exponent = exponent;
+    change();
+}
+
+Palette* Instructions::palette() const
+{
+    return p_palette;
+}
+
+void Instructions::setPalette(Palette *palette)
+{
+    QMutexLocker l(mutex);
+    p_palette = palette;
     change();
 }
 

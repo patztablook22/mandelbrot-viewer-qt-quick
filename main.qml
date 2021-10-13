@@ -9,6 +9,9 @@ ApplicationWindow {
     height: 480
     visible: true
 
+    RenderingMenu { id: renderingMenu }
+    PaletteMenu   { id: paletteMenu }
+
     menuBar: MenuBar {
         Menu {
             title: "&File"
@@ -22,23 +25,33 @@ ApplicationWindow {
                 onTriggered: Qt.quit()
             }
         }
-    }
 
-    Palette {
-        id: palette
-        source: ":/palettes/Fire.plt"
+        Menu {
+            title: "&Options"
+            Action {
+                text: "&Palette"
+                shortcut: "ctrl+p"
+                onTriggered: paletteMenu.open();
+            }
+            Action {
+                text: "&Rendering"
+                shortcut: "ctrl+r"
+                onTriggered: renderingMenu.open();
+            }
+        }
     }
 
     Renderer {
         outSize: Qt.size(output.width, output.height)
         id: renderer
-        palette: palette
     }
 
     VideoOutput {
         id: output
         anchors.fill: parent
         source: renderer
+        onWidthChanged:  renderer.outSize = Qt.size(width, height)
+        onHeightChanged: renderer.outSize = Qt.size(width, height)
 
         MouseArea {
             anchors.fill: parent
@@ -65,5 +78,5 @@ ApplicationWindow {
         }
     }
 
-    Options {}
+    Info {}
 }

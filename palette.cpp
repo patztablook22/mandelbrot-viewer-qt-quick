@@ -52,6 +52,7 @@ void Palette::setSource(QString source)
         m_colors[line] = qRgb(r,g,b);
     }
 
+
     m_valid  = true;
     m_source = source;
     emit sourceChanged();

@@ -4,6 +4,8 @@
 #include <QtCore>
 #include <QWaitCondition>
 
+#include "palette.h"
+
 class Instructions
 {
 public:
@@ -23,6 +25,9 @@ public:
     qreal exponent() const;
     void setExponent(qreal exponent);
 
+    Palette* palette() const;
+    void setPalette(Palette* palette);
+
     bool changed() const;
     const Instructions getChanges();
 
@@ -35,6 +40,7 @@ private:
     QSizeF m_calcSize;
     QSize m_outSize;
     qreal m_exponent;
+    Palette* p_palette;
     bool m_changed;
     bool m_stop;
     QMutex* mutex;

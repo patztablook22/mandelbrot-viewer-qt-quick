@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>Options.qml</file>
+        <file>RenderingMenu.qml</file>
+        <file>PaletteMenu.qml</file>
+        <file>Info.qml</file>
     </qresource>
 </RCC>

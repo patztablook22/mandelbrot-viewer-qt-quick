@@ -14,7 +14,7 @@ class Palette : public QObject
 public:
     explicit Palette(QObject *parent = nullptr);
     QString source() const;
-    void setSource(QString source);
+    Q_INVOKABLE void setSource(QString source);
     bool valid() const;
     const QRgb& getColor(uchar index);
 

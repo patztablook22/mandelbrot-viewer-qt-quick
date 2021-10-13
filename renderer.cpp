@@ -10,8 +10,6 @@ Renderer::Renderer(QObject* parent)
         , m_threads(QThread::idealThreadCount())
         , m_precision(0)
 {
-    p_palette = new Palette;
-    p_palette->setSource(":/palettes/BWIron1.plt");
     connect(
                 this, &Renderer::rendered,
                 this, &Renderer::updateImage
@@ -90,14 +88,15 @@ void Renderer::setScale(qreal scale)
 
 Palette* Renderer::palette() const
 {
-    return p_palette;
+    return instructions.palette();
 }
 
 void Renderer::setPalette(Palette *palette)
 {
+    Palette* p_palette = instructions.palette();
     if (p_palette == palette || palette == nullptr || !palette->valid())
         return;
-    p_palette = palette;
+    instructions.setPalette(palette);
 }
 
 int Renderer::threads() const
@@ -160,6 +159,7 @@ void Renderer::run()
             const auto& cWidth  = todo.calcSize().width();
             const auto& cHeight = todo.calcSize().height();
             const auto& cCenter = todo.calcCenter();
+            const auto& palette = todo.palette();
             worker.exponent     = todo.exponent();
 
             // resize buffer to width*height
@@ -220,7 +220,7 @@ void Renderer::run()
                             if (m < 0)
                                     m = 0;
                             m = m * 256 / iteration_target;
-                            image_buffer[i] = p_palette->getColor(m);
+                            image_buffer[i] = palette->getColor(m % 256);
                     }
                     emit rendered(image, iteration_target);
 

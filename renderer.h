@@ -60,7 +60,6 @@ private:
         int m_precision;
         Instructions instructions;
         QAbstractVideoSurface* p_surface;
-        Palette* p_palette;
         void updateImage(const QImage& image, int precision);
 };
 
