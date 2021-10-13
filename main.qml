@@ -3,11 +3,22 @@ import QtQuick.Controls 2.12
 import QtMultimedia 5.12
 import org.palette 1.0
 import org.renderer 1.0
+import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
     width: 640
     height: 480
     visible: true
+
+    FileDialog {
+        id: exportDialog
+        title: "Choose export path"
+        defaultSuffix: "png"
+        folder: shortcuts.home
+        nameFilters: ["Image files (*.jpg *.png)", "All Files (*)"]
+        selectExisting: false
+        onAccepted: renderer.exportTo(fileUrl.toString().split("file://")[1])
+    }
 
     RenderingMenu { id: renderingMenu }
     PaletteMenu   { id: paletteMenu }
@@ -18,6 +29,7 @@ ApplicationWindow {
             Action {
                 text: "&Export"
                 shortcut: "ctrl+e"
+                onTriggered: exportDialog.open();
             }
             Action {
                 text: "&Quit"

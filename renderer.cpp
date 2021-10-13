@@ -240,10 +240,17 @@ void Renderer::run()
 
 void Renderer::updateImage(const QImage &image, int precision)
 {
+        activeImage = image;
         QVideoFrame frame(image);
         p_surface->present(frame);
         if (m_precision == precision)
                 return;
         m_precision = precision;
         emit precisionChanged();
+}
+
+void Renderer::exportTo(QString path)
+{
+    qDebug() << "exporting to" << path;
+    activeImage.save(path);
 }

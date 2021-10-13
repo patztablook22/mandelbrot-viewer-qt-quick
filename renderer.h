@@ -42,6 +42,8 @@ public:
         void setPalette(Palette* palette);
         void setExponent(qreal exponent);
 
+        Q_INVOKABLE void exportTo(QString path);
+
 signals:
         void rendered(const QImage& image, int precision);
         void precisionChanged();
@@ -61,6 +63,7 @@ private:
         Instructions instructions;
         QAbstractVideoSurface* p_surface;
         void updateImage(const QImage& image, int precision);
+        QImage activeImage;
 };
 
 #endif // RENDERER_H
