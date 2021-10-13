@@ -1,5 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.12
+import QtMultimedia 5.12
+import org.manager 1.0
+import org.renderer 1.0
 
 ApplicationWindow {
     width: 640
@@ -20,4 +23,17 @@ ApplicationWindow {
             }
         }
     }
+
+    Manager  { id: manager }
+    Renderer {
+        id: renderer
+        manager: manager
+    }
+
+    VideoOutput {
+        anchors.fill: parent
+        source: renderer
+    }
+
+    Options {}
 }

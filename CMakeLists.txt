@@ -39,6 +39,8 @@ find_package(
 set(PROJECT_SOURCES
         main.cpp
         qml.qrc
+        manager.cpp
+        renderer.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
