@@ -1,5 +1,13 @@
 #include "instructions.h"
 
+#include <QMutexLocker>
+
+Instructions::Instructions()
+{
+    mutex = new QMutex;
+    condition = new QWaitCondition;
+}
+
 
 qreal Instructions::scale() const
 {
@@ -8,31 +16,60 @@ qreal Instructions::scale() const
 
 void Instructions::setScale(qreal scale)
 {
-        if (scale < 0.5)
-                scale = 0.5;
-        if (m_scale == scale)
-                return;
-
+        QMutexLocker l(mutex);
         m_scale = scale;
+        change();
 }
 
 QSize Instructions::outSize() const
 {
-    return m_outSize;
+        return m_outSize;
 }
 
 void Instructions::setOutSize(QSize size)
 {
-    m_outSize = size;
+        QMutexLocker l(mutex);
+        m_outSize = size;
+        change();
 }
 
 QPointF Instructions::calcCenter() const
 {
-    return m_calcCenter;
+        return m_calcCenter;
 }
 
 void Instructions::setCalcCenter(QPointF center)
 {
-    m_calcCenter = center;
+        QMutexLocker l(mutex);
+        m_calcCenter = center;
+        change();
 }
 
+const Instructions Instructions::getChanges()
+{
+        if (!m_changed)
+                condition->wait(mutex);
+        m_changed = false;
+        mutex->unlock();
+
+        // pass by value!
+        return *this;
+}
+
+void Instructions::change()
+{
+        m_changed = true;
+        condition->wakeAll();
+}
+
+void Instructions::stop()
+{
+        QMutexLocker l(mutex);
+        m_stop = true;
+        change();
+}
+
+bool Instructions::shouldStop() const
+{
+        return m_stop;
+}

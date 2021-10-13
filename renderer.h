@@ -18,6 +18,7 @@ class Renderer : public QThread
         Q_PROPERTY(int threads           READ threads    WRITE setThreads        NOTIFY threadsChanged)
 public:
         Renderer(QObject* parent = nullptr);
+        ~Renderer();
         QAbstractVideoSurface* videoSurface() const;
         void setVideoSurface(QAbstractVideoSurface* surface);
 
@@ -42,6 +43,7 @@ signals:
 protected:
         void run();
 private:
+        void waitForChanges();
         int m_threads;
         Instructions instructions;
         QAbstractVideoSurface* p_surface;

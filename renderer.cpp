@@ -6,6 +6,13 @@ Renderer::Renderer(QObject* parent)
         : QThread(parent)
         , m_threads(QThread::idealThreadCount())
 {
+    start();
+}
+
+Renderer::~Renderer()
+{
+    instructions.stop();
+    wait();
 }
 
 QAbstractVideoSurface* Renderer::videoSurface() const
@@ -87,8 +94,11 @@ void Renderer::setThreads(int threads)
 void Renderer::run()
 {
     forever {
-        const Instructions inst = instructions;
+        // wait for instruction changes
+        const Instructions todo = instructions.getChanges();
+        qDebug() << "changed";
+        if (todo.shouldStop())
+            return;
 
-        break;
     }
 }
