@@ -110,6 +110,9 @@ void Renderer::run()
     const auto frame_format = QVideoFrame::Format_RGB32;
     const auto image_format = QImage::Format_RGB32;
 
+    // worker callable struct
+    Worker worker;
+
     // buffer for multi-thread calculations
     QVector<MandelData> buffer;
 
@@ -133,6 +136,9 @@ void Renderer::run()
         p_surface->start({ todo.outSize(), frame_format });
         QImage image(      todo.outSize(), image_format  );
 
+        // set thread count
+        QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
+
         // prepare all of its values
         for (size_t i = 0; i < buffer.size(); i++) {
             auto& data = buffer[i];
@@ -141,19 +147,29 @@ void Renderer::run()
             int row = i / oWidth;
             int col = i % oWidth;
             qreal x =  (static_cast<qreal>(col) / oWidth  - 0.5) * cWidth  + cCenter.x();
-            qreal y = -(static_cast<qreal>(row) / oHeight - 0.5) * oHeight + cCenter.y();
+            qreal y = -(static_cast<qreal>(row) / oHeight - 0.5) * cHeight + cCenter.y();
 
             // initialize data
             data.c = {x, y};
             data.z = {0, 0};
-            data.i = 40;
+            data.i = -1;
         }
+
+        // set precision
+        int iterations = 100;
+        worker.iterationsEnd = iterations;
+        QtConcurrent::blockingMap(buffer, worker);
 
         // update image
         QRgb* image_buffer = reinterpret_cast<QRgb*>(image.bits());
-        for (size_t i = 0; i < oWidth * oHeight; i++)
-            image_buffer[i] = qRgb(buffer[i].i, 0, 0);
-        emit rendered(image, 50);
+        for (size_t i = 0; i < oWidth * oHeight; i++) {
+            int m = buffer[i].i;
+            if (m < 0)
+                m = 0;
+            m = m * 256 / iterations;
+            image_buffer[i] = qRgb(m, m, m);
+        }
+        emit rendered(image, iterations);
     }
 }
 
