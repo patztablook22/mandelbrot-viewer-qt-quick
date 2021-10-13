@@ -26,22 +26,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(
-    Qt${QT_VERSION_MAJOR}
-    COMPONENTS
-    Core
-    Quick
-    Concurrent
-    Multimedia
-    QuickControls2
-    REQUIRED
+        Qt${QT_VERSION_MAJOR}
+        COMPONENTS
+        Core
+        Quick
+        Concurrent
+        Multimedia
+        QuickControls2
+        REQUIRED
 )
 
 set(PROJECT_SOURCES
         main.cpp
         qml.qrc
+        palettes.qrc
         instructions.cpp
         renderer.cpp
         worker.cpp
+        palette.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

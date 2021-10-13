@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
+    qmlRegisterType<Palette>("org.palette", 1, 0, "Palette");
     qmlRegisterType<Renderer>("org.renderer", 1, 0, "Renderer");
     engine.load(url);
 

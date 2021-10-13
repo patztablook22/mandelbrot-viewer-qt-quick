@@ -10,6 +10,8 @@ Renderer::Renderer(QObject* parent)
         , m_threads(QThread::idealThreadCount())
         , m_precision(0)
 {
+    p_palette = new Palette;
+    p_palette->setSource(":/palettes/BWIron1.plt");
     connect(
                 this, &Renderer::rendered,
                 this, &Renderer::updateImage
@@ -86,6 +88,18 @@ void Renderer::setScale(qreal scale)
     emit calcSizeChanged();
 }
 
+Palette* Renderer::palette() const
+{
+    return p_palette;
+}
+
+void Renderer::setPalette(Palette *palette)
+{
+    if (p_palette == palette || palette == nullptr || !palette->valid())
+        return;
+    p_palette = palette;
+}
+
 int Renderer::threads() const
 {
     return m_threads;
@@ -138,6 +152,7 @@ void Renderer::run()
 
             // set thread count
             QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
+            qDebug() << QThreadPool::globalInstance()->maxThreadCount();
 
             // prepare all of its values
             for (size_t i = 0; i < buffer.size(); i++) {
@@ -163,8 +178,8 @@ void Renderer::run()
          */
 
             int max_iterations = todo.scale() / 2;
-            if (max_iterations < 32)
-                    max_iterations = 32;
+            if (max_iterations < 128)
+                    max_iterations = 128;
             else if (max_iterations > 1024)
                     max_iterations = 1024;
 
@@ -186,7 +201,7 @@ void Renderer::run()
                             if (m < 0)
                                     m = 0;
                             m = m * 256 / iteration_target;
-                            image_buffer[i] = qRgb(m, m, m);
+                            image_buffer[i] = p_palette->getColor(m);
                     }
                     emit rendered(image, iteration_target);
 

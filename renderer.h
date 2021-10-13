@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QAbstractVideoSurface>
 #include "instructions.h"
+#include "palette.h"
 
 class Renderer : public QThread
 {
@@ -17,6 +18,7 @@ class Renderer : public QThread
         Q_PROPERTY(QPointF calcCenter    READ calcCenter WRITE setCalcCenter     NOTIFY calcCenterChanged)
         Q_PROPERTY(int threads           READ threads    WRITE setThreads        NOTIFY threadsChanged)
         Q_PROPERTY(int precision         READ precision                          NOTIFY precisionChanged)
+        Q_PROPERTY(Palette* palette      READ palette    WRITE setPalette)
 public:
         Renderer(QObject* parent = nullptr);
         ~Renderer();
@@ -29,11 +31,13 @@ public:
         QPointF calcCenter() const;
         int threads() const;
         int precision() const;
+        Palette* palette() const;
 
         void setOutSize(QSize size);
         void setScale(qreal scale);
         void setCalcCenter(QPointF center);
         void setThreads(int threads);
+        void setPalette(Palette* palette);
 
 signals:
         void rendered(const QImage& image, int precision);
@@ -52,6 +56,7 @@ private:
         int m_precision;
         Instructions instructions;
         QAbstractVideoSurface* p_surface;
+        Palette* p_palette;
         void updateImage(const QImage& image, int precision);
 };
 

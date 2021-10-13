@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>palettes/BlackRed.plt</file>
+        <file>palettes/BlueRed.plt</file>
+        <file>palettes/BWIron.plt</file>
+        <file>palettes/BWIron1.plt</file>
+        <file>palettes/BWRainbow.plt</file>
+        <file>palettes/BWRainbowHC.plt</file>
+        <file>palettes/BWRGB.plt</file>
+        <file>palettes/Fire.plt</file>
+        <file>palettes/Gradient.plt</file>
+        <file>palettes/Gray.plt</file>
+        <file>palettes/Iron.plt</file>
+        <file>palettes/Iron1.plt</file>
+        <file>palettes/Natural.plt</file>
+        <file>palettes/Rainbow.plt</file>
+        <file>palettes/RainbowHC.plt</file>
+        <file>palettes/Sepia.plt</file>
+        <file>palettes/Steps.plt</file>
+        <file>palettes/Temperature.plt</file>
+        <file>palettes/WBRGB.plt</file>
+    </qresource>
+</RCC>
