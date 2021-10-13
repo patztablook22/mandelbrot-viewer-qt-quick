@@ -40,7 +40,7 @@ void Instructions::setOutSize(QSize size)
 QSizeF Instructions::calcSize() const
 {
     // power to make it more practical for higher scales
-    return QSizeF(m_outSize) / pow(m_scale, 3);
+    return QSizeF(m_outSize) / pow(m_scale, 2);
 }
 
 QPointF Instructions::calcCenter() const
@@ -70,6 +70,11 @@ void Instructions::change()
 {
         m_changed = true;
         condition->wakeAll();
+}
+
+bool Instructions::changed() const
+{
+    return m_changed;
 }
 
 void Instructions::stop()

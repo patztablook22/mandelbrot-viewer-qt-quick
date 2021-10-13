@@ -117,68 +117,99 @@ void Renderer::run()
     QVector<MandelData> buffer;
 
     forever {
-        // wait for instruction changes
-        const Instructions todo = instructions.getChanges();
-        if (todo.shouldStop())
-            return;
+            // wait for instruction changes
+            const Instructions todo = instructions.getChanges();
+            if (todo.shouldStop())
+                    return;
 
-        // more shorthands
-        const auto& oWidth  = todo.outSize().width();
-        const auto& oHeight = todo.outSize().height();
-        const auto& cWidth  = todo.calcSize().width();
-        const auto& cHeight = todo.calcSize().height();
-        const auto& cCenter  = todo.calcCenter();
+            // more shorthands
+            const auto& oWidth  = todo.outSize().width();
+            const auto& oHeight = todo.outSize().height();
+            const auto& cWidth  = todo.calcSize().width();
+            const auto& cHeight = todo.calcSize().height();
+            const auto& cCenter  = todo.calcCenter();
 
-        // resize buffer to width*height
-        buffer.resize(oWidth * oHeight);
+            // resize buffer to width*height
+            buffer.resize(oWidth * oHeight);
 
-        // visual structs
-        p_surface->start({ todo.outSize(), frame_format });
-        QImage image(      todo.outSize(), image_format  );
+            // visual structs
+            p_surface->start({ todo.outSize(), frame_format });
+            QImage image(      todo.outSize(), image_format  );
 
-        // set thread count
-        QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
+            // set thread count
+            QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
 
-        // prepare all of its values
-        for (size_t i = 0; i < buffer.size(); i++) {
-            auto& data = buffer[i];
+            // prepare all of its values
+            for (size_t i = 0; i < buffer.size(); i++) {
+                    auto& data = buffer[i];
 
-            // get local c = (x, y)
-            int row = i / oWidth;
-            int col = i % oWidth;
-            qreal x =  (static_cast<qreal>(col) / oWidth  - 0.5) * cWidth  + cCenter.x();
-            qreal y = -(static_cast<qreal>(row) / oHeight - 0.5) * cHeight + cCenter.y();
+                    // get local c = (x, y)
+                    int row = i / oWidth;
+                    int col = i % oWidth;
+                    qreal x =  (static_cast<qreal>(col) / oWidth  - 0.5) * cWidth  + cCenter.x();
+                    qreal y = -(static_cast<qreal>(row) / oHeight - 0.5) * cHeight + cCenter.y();
 
-            // initialize data
-            data.c = {x, y};
-            data.z = {0, 0};
-            data.i = -1;
-        }
+                    // initialize data
+                    data.c = {x, y};
+                    data.z = {0, 0};
+                    data.i = -1;
+            }
 
-        // set precision
-        int iterations = 100;
-        worker.iterationsEnd = iterations;
-        QtConcurrent::blockingMap(buffer, worker);
+        /* the fractal will be rendered gradually with higher and higher precision
+         * rendering will stp at `max_iterations`
+         * image will be updated at `iteration_target`
+         *
+         * `max_iterations` shouldn't be above 1024 and below 32 for both performance and aesthetic reasons
+         */
 
-        // update image
-        QRgb* image_buffer = reinterpret_cast<QRgb*>(image.bits());
-        for (size_t i = 0; i < oWidth * oHeight; i++) {
-            int m = buffer[i].i;
-            if (m < 0)
-                m = 0;
-            m = m * 256 / iterations;
-            image_buffer[i] = qRgb(m, m, m);
-        }
-        emit rendered(image, iterations);
+            int max_iterations = todo.scale() / 2;
+            if (max_iterations < 32)
+                    max_iterations = 32;
+            else if (max_iterations > 1024)
+                    max_iterations = 1024;
+
+            int iteration_target = max_iterations / 2;
+            if (iteration_target > 128)
+                    iteration_target = 128;
+
+            int iterations_done = 0;
+            forever {
+                    // perform the multi-thread calculation
+                    worker.iterationsBegin = iterations_done;
+                    worker.iterationsEnd   = iteration_target;
+                    QtConcurrent::blockingMap(buffer, worker);
+
+                    // update image
+                    QRgb* image_buffer = reinterpret_cast<QRgb*>(image.bits());
+                    for (size_t i = 0; i < oWidth * oHeight; i++) {
+                            int m = buffer[i].i;
+                            if (m < 0)
+                                    m = 0;
+                            m = m * 256 / iteration_target;
+                            image_buffer[i] = qRgb(m, m, m);
+                    }
+                    emit rendered(image, iteration_target);
+
+                    iterations_done = iteration_target;
+                    if (iterations_done == max_iterations)
+                        break;
+                    iteration_target += 32;
+                    if (iteration_target > max_iterations)
+                        iteration_target = max_iterations;
+
+                    if (instructions.changed())
+                        break;
+            }
+
     }
 }
 
 void Renderer::updateImage(const QImage &image, int precision)
 {
-    QVideoFrame frame(image);
-    p_surface->present(frame);
-    if (m_precision == precision)
-        return;
-    m_precision = precision;
-    emit precisionChanged();
+        QVideoFrame frame(image);
+        p_surface->present(frame);
+        if (m_precision == precision)
+                return;
+        m_precision = precision;
+        emit precisionChanged();
 }
