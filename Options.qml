@@ -7,4 +7,22 @@ Rectangle {
     height: 100
     color: "#99222222"
     clip: true
+
+    Column {
+
+        Row {
+            Text {
+                color: "white"
+                text: "threads: "
+            }
+
+            TextInput {
+                color: "white"
+                text: renderer.threads
+                onTextChanged: renderer.threads = text
+            }
+
+        }
+
+    }
 }

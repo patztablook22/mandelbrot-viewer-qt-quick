@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.12
 import QtMultimedia 5.12
-import org.manager 1.0
 import org.renderer 1.0
 
 ApplicationWindow {
@@ -24,13 +23,13 @@ ApplicationWindow {
         }
     }
 
-    Manager  { id: manager }
     Renderer {
+        outSize: Qt.size(output.width, output.height)
         id: renderer
-        manager: manager
     }
 
     VideoOutput {
+        id: output
         anchors.fill: parent
         source: renderer
     }

@@ -39,7 +39,7 @@ find_package(
 set(PROJECT_SOURCES
         main.cpp
         qml.qrc
-        manager.cpp
+        instructions.cpp
         renderer.cpp
 )
 

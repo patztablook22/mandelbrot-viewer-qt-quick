@@ -1,7 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include "manager.h"
 #include "renderer.h"
 
 
@@ -21,7 +20,6 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
-    qmlRegisterType<Manager>("org.manager", 1, 0, "Manager");
     qmlRegisterType<Renderer>("org.renderer", 1, 0, "Renderer");
     engine.load(url);
 
