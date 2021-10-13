@@ -35,6 +35,7 @@ ApplicationWindow {
 
         MouseArea {
             anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MidButton
             onWheel: {
                 renderer.scale += wheel.angleDelta.y / 1000;
             }
@@ -43,10 +44,16 @@ ApplicationWindow {
                 let newY = renderer.calcCenter.y - (mouseY / parent.height - 0.5) * renderer.calcSize.height // y goes from bottom to up
                 renderer.calcCenter = Qt.point(newX, newY)
 
-                if (mouse.button == Qt.LeftButton)
+                switch (mouse.button) {
+                case Qt.LeftButton:
                     renderer.scale *= 1.3
-                else
+                    break;
+                case Qt.RightButton:
                     renderer.scale /= 1.3
+                    break;
+                case Qt.MidButton:
+                    break;
+                }
             }
         }
     }
