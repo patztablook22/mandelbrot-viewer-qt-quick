@@ -33,6 +33,11 @@ void Instructions::setOutSize(QSize size)
         change();
 }
 
+QSizeF Instructions::calcSize() const
+{
+    return outSize();
+}
+
 QPointF Instructions::calcCenter() const
 {
         return m_calcCenter;
