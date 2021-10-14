@@ -144,8 +144,9 @@ void Renderer::run()
     const auto frame_format = QVideoFrame::Format_RGB32;
     const auto image_format = QImage::Format_RGB32;
 
-    QRgb* image_bits = nullptr;
-    QSize last_size{0, 0};
+    QRgb*  image_bits = nullptr;
+    QRgb*  image_prev = nullptr;
+    size_t image_size = 0;
 
     // worker callable struct
     Worker worker;
@@ -178,10 +179,13 @@ void Renderer::run()
             QVideoSurfaceFormat format(todo.outSize(), frame_format);
             p_surface->start(format);
 
-            if (todo.outSize() != last_size) {
+            if (oWidth * oHeight > image_size) {
+                if (image_prev != nullptr)
+                    delete[] image_prev;
                 if (image_bits != nullptr)
-                    delete[] image_bits;
+                    image_prev = image_bits;
                 image_bits = new QRgb[oWidth * oHeight];
+                image_size = oWidth * oHeight;
             }
 
             // set thread count
