@@ -5,7 +5,7 @@ Popup {
     width: 300
     height: 300
     anchors.centerIn: parent
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     focus: true
     clip: true
     modal: true
