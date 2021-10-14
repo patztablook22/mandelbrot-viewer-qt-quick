@@ -144,7 +144,8 @@ void Renderer::run()
     const auto frame_format = QVideoFrame::Format_RGB32;
     const auto image_format = QImage::Format_RGB32;
 
-    QRgb* image_bits = new QRgb[2000 * 2000];
+    QRgb* image_bits = nullptr;
+    QSize last_size{0, 0};
 
     // worker callable struct
     Worker worker;
@@ -175,13 +176,16 @@ void Renderer::run()
 
             // visual structs
             QVideoSurfaceFormat format(todo.outSize(), frame_format);
-            QImage image(      todo.outSize(), image_format  );
             p_surface->start(format);
-            image_bits = new QRgb[oWidth * oHeight];
+
+            if (todo.outSize() != last_size) {
+                if (image_bits != nullptr)
+                    delete[] image_bits;
+                image_bits = new QRgb[oWidth * oHeight];
+            }
 
             // set thread count
             QThreadPool::globalInstance()->setMaxThreadCount(m_threads);
-//            qDebug() << QThreadPool::globalInstance()->maxThreadCount();
 
             // prepare all of its values
             for (size_t i = 0; i < buffer.size(); i++) {
@@ -224,13 +228,11 @@ void Renderer::run()
                     QtConcurrent::blockingMap(buffer, worker);
 
                     // update image
-                    QRgb* image_buffer = reinterpret_cast<QRgb*>(image.bits());
                     for (size_t i = 0; i < oWidth * oHeight; i++) {
                             int m = buffer[i].i;
                             if (m < 0)
                                     m = 0;
                             m = m * 256 / iteration_target;
-//                            image_buffer[i] = palette->getColor(m % 256);
                             image_bits[i] = palette->getColor(m % 256);
                     }
 
