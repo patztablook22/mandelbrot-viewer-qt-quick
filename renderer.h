@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QObject>
 #include <QAbstractVideoSurface>
+#include <QFuture>
+#include "worker.h"
 #include "instructions.h"
 #include "palette.h"
 
@@ -41,6 +43,7 @@ public:
         void setThreads(int threads);
         void setPalette(Palette* palette);
         void setExponent(qreal exponent);
+        void setPrecision(int precision);
 
         Q_INVOKABLE void exportTo(QString path);
 
@@ -57,7 +60,16 @@ signals:
 protected:
         void run();
 private:
-        void waitForChanges();
+        void prepareBuffer(QVector<MandelData>& buffer, const Instructions& instructions);
+        void reallocateBits(QRgb** bits, QRgb** prev, size_t new_size);
+        void bufferToBits(const QVector<MandelData>& buffer, QRgb* bits, size_t iteration_target, Palette* palette);
+        void updateSurfaceFormat(const QSize& size);
+
+        // these methods should be inline:
+        int getMaxIterations(const qreal scale);
+        int getFirstIterationTarget(const int max);
+        int getNextIterationTarget(const int current, const int max);
+
         int m_threads;
         int m_precision;
         Instructions instructions;

@@ -31,6 +31,8 @@ public:
     bool changed() const;
     const Instructions getChanges();
 
+    bool imageOnly() const;
+
     void stop();
     bool shouldStop() const;
 
@@ -40,12 +42,13 @@ private:
     QSizeF m_calcSize;
     QSize m_outSize;
     qreal m_exponent;
+    bool m_imageOnly;
     Palette* p_palette;
     bool m_changed;
     bool m_stop;
     QMutex* mutex;
     QWaitCondition* condition;
-    void change();
+    void change(bool imageOnly = false);
 
 signals:
 
