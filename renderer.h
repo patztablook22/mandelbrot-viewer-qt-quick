@@ -14,20 +14,22 @@ class Renderer : public QThread
         Q_OBJECT
         Q_PROPERTY(QAbstractVideoSurface* videoSurface READ videoSurface WRITE setVideoSurface)
 
-        Q_PROPERTY(QSize  outSize        READ outSize WRITE setOutSize   NOTIFY outSizeChanged)
-        Q_PROPERTY(QSizeF calcSize       READ calcSize  NOTIFY calcSizeChanged)
-        Q_PROPERTY(qreal scale           READ scale      WRITE setScale          NOTIFY scaleChanged)
-        Q_PROPERTY(QPointF calcCenter    READ calcCenter WRITE setCalcCenter     NOTIFY calcCenterChanged)
-        Q_PROPERTY(int threads           READ threads    WRITE setThreads        NOTIFY threadsChanged)
-        Q_PROPERTY(int precision         READ precision                          NOTIFY precisionChanged)
-        Q_PROPERTY(Palette* palette      READ palette    WRITE setPalette)
-        Q_PROPERTY(qreal exponent        READ exponent   WRITE setExponent       NOTIFY exponentChanged);
+        Q_PROPERTY(QSize    outSize     READ outSize    WRITE setOutSize     NOTIFY outSizeChanged)
+        Q_PROPERTY(QSizeF   calcSize    READ calcSize                        NOTIFY calcSizeChanged)
+        Q_PROPERTY(qreal    scale       READ scale      WRITE setScale       NOTIFY scaleChanged)
+        Q_PROPERTY(QPointF  calcCenter  READ calcCenter WRITE setCalcCenter  NOTIFY calcCenterChanged)
+        Q_PROPERTY(int      threads     READ threads    WRITE setThreads     NOTIFY threadsChanged)
+        Q_PROPERTY(int      precision   READ precision                       NOTIFY precisionChanged)
+        Q_PROPERTY(qreal    exponent    READ exponent   WRITE setExponent    NOTIFY exponentChanged);
+        Q_PROPERTY(Palette* palette     READ palette    WRITE setPalette)
+
 public:
         Renderer(QObject* parent = nullptr);
         ~Renderer();
         QAbstractVideoSurface* videoSurface() const;
         void setVideoSurface(QAbstractVideoSurface* surface);
 
+        // getters
         QSize outSize() const;
         QSizeF calcSize() const;
         qreal scale() const;
@@ -37,6 +39,7 @@ public:
         Palette* palette() const;
         qreal exponent() const;
 
+        // setters
         void setOutSize(QSize size);
         void setScale(qreal scale);
         void setCalcCenter(QPointF center);
@@ -58,7 +61,9 @@ signals:
         void exponentChanged();
 
 protected:
+        // separate thread method
         void run();
+
 private:
         void prepareBuffer(QVector<MandelData>& buffer, const Instructions& instructions);
         void reallocateBits(QRgb** bits, QRgb** prev, size_t new_size);
@@ -76,7 +81,6 @@ private:
         QAbstractVideoSurface* p_surface;
         void updateImage(const QImage& image, int precision);
         QImage activeImage;
-        QVideoFrame activeFrame;
 };
 
 #endif // RENDERER_H

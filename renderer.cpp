@@ -15,6 +15,9 @@ Renderer::Renderer(QObject* parent)
         );
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// getters and setters follow:
+
 Renderer::~Renderer()
 {
         instructions.stop();
@@ -82,6 +85,10 @@ void Renderer::setOutSize(QSize size)
 
 void Renderer::setScale(qreal scale)
 {
+        if (scale < 0.5)
+            scale = 0.5;
+        if (scale == instructions.scale())
+            return;
         instructions.setScale(scale);
         emit scaleChanged();
         emit calcSizeChanged();
@@ -144,6 +151,9 @@ void Renderer::setPrecision(int precision)
     emit precisionChanged();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// actual rendering follows:
+
 void Renderer::run()
 {
         // previous must be stored since it has to be valid during the entire lifespan of QImage
@@ -164,19 +174,23 @@ void Renderer::run()
                 if (todo.shouldStop())
                         return;
 
+                // get shorthands for long instruction variables etc.
                 const auto& oWidth  = todo.outSize().width();
                 const auto& oHeight = todo.outSize().height();
                 const auto& palette = todo.palette();
                 const auto  threads = m_threads;
                 worker.exponent     = todo.exponent();
 
+                // if imageOnly flag,
+                // it's enough to just update the image using already calculated data
                 if (todo.imageOnly()) {
-                        // no need to recalculate
                         bufferToBits(buffer, image_bits, m_precision, todo.palette());
-                        QImage img(reinterpret_cast<uchar*>(image_bits), oWidth, oHeight, QImage::Format_RGB32);
+                        QImage img(reinterpret_cast<uchar*>(image_bits), activeImage.size().width(), activeImage.size().height(), QImage::Format_RGB32);
                         emit rendered(img, m_precision);
                         continue;
                 }
+                // else
+                // the whole process needs to be done
 
                 setPrecision(0);
                 updateSurfaceFormat(todo.outSize());
@@ -198,7 +212,7 @@ void Renderer::run()
 
                 /* the fractal will be rendered gradually with higher and higher precision
                  * rendering will stp at `max_iterations`
-                 * image will be updated at `iteration_target`
+                 * image will be updated at each `iteration_target`
                  *
                  * `max_iterations` shouldn't be above 1024 and below 32 for both performance and aesthetic reasons
                  */
@@ -233,6 +247,10 @@ void Renderer::run()
 
 void Renderer::reallocateBits(QRgb** bits, QRgb** prev, size_t new_size)
 {
+        // free `prev`, move `bits` to `prev`, allocate new `bits`
+        // i.e.
+        // free <- prev <- bits <- alloc
+
         if (prev != nullptr)
                 delete[] *prev;
         if (bits != nullptr)
@@ -242,14 +260,17 @@ void Renderer::reallocateBits(QRgb** bits, QRgb** prev, size_t new_size)
 
 void Renderer::prepareBuffer(QVector<MandelData> &buffer, const Instructions& todo)
 {
+        // `buffer` holds data for mandelbrot calculation
+        // see worker.h / worker.cpp
 
+        // get shorthands first
         const auto& oWidth  = todo.outSize().width();
         const auto& oHeight = todo.outSize().height();
         const auto& cWidth  = todo.calcSize().width();
         const auto& cHeight = todo.calcSize().height();
         const auto& cCenter = todo.calcCenter();
 
-        // first resize buffer
+        // resize buffer
         buffer.resize(oWidth * oHeight);
 
         // now initialize its values
@@ -271,7 +292,6 @@ void Renderer::prepareBuffer(QVector<MandelData> &buffer, const Instructions& to
 
 inline int Renderer::getMaxIterations(const qreal scale)
 {
-
         int max_iterations = scale / 2;
         if (max_iterations < 128)
                 max_iterations = 128;
@@ -299,6 +319,7 @@ inline int Renderer::getNextIterationTarget(const int current, const int max)
 
 void Renderer::bufferToBits(const QVector<MandelData>& buffer, QRgb *bits, size_t iteration_target, Palette* palette)
 {
+        // use mandelbrot data for cOLORFUL image owo
         for (size_t i = 0; i < buffer.size(); i++) {
                 int m = buffer[i].i;
                 if (m < 0)
@@ -316,9 +337,14 @@ void Renderer::updateSurfaceFormat(const QSize& size)
 
 void Renderer::updateImage(const QImage& image, int precision)
 {
+        // activeImage holds ... active image ... for potental exporting
         activeImage = image;
+
+        // present the image as a frame
         QVideoFrame frame(image);
         p_surface->present(frame);
+
+        // let stuff know the precision of the just-rendered image
         setPrecision(precision);
 }
 

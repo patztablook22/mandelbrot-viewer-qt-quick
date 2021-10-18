@@ -7,7 +7,7 @@ Instructions::Instructions()
         , m_calcCenter{0, 0}
         , m_stop(false)
         , m_exponent(2)
-        , m_imageOnly(false)
+        , m_imageOnly(true)
 {
     p_palette = new Palette;
     p_palette->setSource(":/palettes/BWIron1.plt");
@@ -15,6 +15,17 @@ Instructions::Instructions()
     condition = new QWaitCondition;
 }
 
+/*
+ * Getters just get, they don't need to be thread-safe, because the whole class
+ * is being copied into the separate thread, just that copy needs to be thread-safe
+ * see `Instructions::getChanges()`
+ *
+ * Setters, on the other hand, need to be thread safe in respect to the copying
+ * => each setters locks the mutex and calls change() to make the class know that new
+ * instructions are available
+ * see `Instructions::change()`
+ *
+ */
 
 qreal Instructions::scale() const
 {
@@ -23,8 +34,6 @@ qreal Instructions::scale() const
 
 void Instructions::setScale(qreal scale)
 {
-        if (scale < 0.5)
-            scale = 0.5;
         QMutexLocker l(mutex);
         m_scale = scale;
         change();
@@ -97,13 +106,19 @@ const Instructions Instructions::getChanges()
         mutex->unlock();
 
         // pass by value!
-        return *this;
+        auto tmp = *this;
+        m_imageOnly = true;
+        return tmp;
 }
 
 void Instructions::change(bool imageOnly)
 {
+        // pass imageOnly = true
+        // if the mandelbrot set doesn't need to be recalculated
+        // and just the image needs to be updated using already calculated data
+
         m_changed   = true;
-        m_imageOnly = imageOnly;
+        m_imageOnly = imageOnly && m_imageOnly;
         condition->wakeAll();
 }
 

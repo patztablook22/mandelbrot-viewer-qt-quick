@@ -11,6 +11,9 @@ class Instructions
 public:
     Instructions();
 
+    // getters
+    // and setters:
+
     qreal scale() const;
     void setScale(qreal scale);
 

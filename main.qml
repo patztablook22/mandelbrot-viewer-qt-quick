@@ -42,14 +42,14 @@ ApplicationWindow {
             title: "&View"
             Action {
                 id: viewInfo
-                text: "&Info"
+                text: "Info"
                 checkable: true
                 checked: true
             }
 
             Action {
                 id: viewGrid
-                text: "&Grid"
+                text: "Grid"
                 checkable: true
                 checked: true
             }

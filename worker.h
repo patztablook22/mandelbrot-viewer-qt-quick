@@ -8,8 +8,8 @@
 using Complex = std::complex<qreal>;
 
 struct MandelData {
-    /* c = (x, y)     complex coordinates
-     * z = z^n + c    mandelbrot data to iterate over
+    /* c = (x, y)     complex plane coordinates
+     * z = z^n + c    mandelbrot data to iterate over (see wiki or whatever)
      * i              number of iterations before divergence (for assigning color later)
      */
     Complex c;
