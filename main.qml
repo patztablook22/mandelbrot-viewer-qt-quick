@@ -39,6 +39,23 @@ ApplicationWindow {
         }
 
         Menu {
+            title: "&View"
+            Action {
+                id: viewInfo
+                text: "&Info"
+                checkable: true
+                checked: true
+            }
+
+            Action {
+                id: viewGrid
+                text: "&Grid"
+                checkable: true
+                checked: true
+            }
+        }
+
+        Menu {
             title: "&Options"
             Action {
                 text: "&Palette"
@@ -90,5 +107,32 @@ ApplicationWindow {
         }
     }
 
-    Info {}
+    Item {
+        id: grid
+        visible: viewGrid.checked
+        anchors.fill: parent
+
+        // horizontal
+        Rectangle {
+            x: 0
+            y: parent.height / 2
+            width: parent.width
+            height: 1
+            color: "red"
+        }
+
+        // vertical
+        Rectangle {
+            x: parent.width / 2
+            y: 0
+            width: 1
+            height: parent.height
+            color: "red"
+        }
+    }
+
+    Info {
+        id: info
+        visible: viewInfo.checked
+    }
 }
