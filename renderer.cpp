@@ -29,8 +29,8 @@ QAbstractVideoSurface* Renderer::videoSurface() const {
 }
 
 void Renderer::setVideoSurface(QAbstractVideoSurface *surface) {
-        if (surface == p_surface || surface == nullptr)
-                return;
+        if (surface == p_surface || surface == nullptr) return;
+
         bool idle = (p_surface == nullptr);
         p_surface = surface;
         if (idle)
@@ -58,17 +58,16 @@ QPointF Renderer::calcCenter() const {
 }
 
 void Renderer::setCalcCenter(QPointF center) {
-        if (instructions.calcCenter() == center)
-                return;
+        if (instructions.calcCenter() == center) return;
+
         instructions.setCalcCenter(center);
         emit calcCenterChanged();
 }
 
 void Renderer::setOutSize(QSize size) {
-        if (size.width() < 1 || size.height() < 1)
-                return;
-        if (size == instructions.outSize())
-                return;
+        if (size.width() < 1 || size.height() < 1) return;
+        if (size == instructions.outSize()) return;
+
         instructions.setOutSize(size);
         emit outSizeChanged();
         emit calcSizeChanged();
@@ -77,8 +76,8 @@ void Renderer::setOutSize(QSize size) {
 void Renderer::setScale(qreal scale) {
         if (scale < 0.5)
                 scale = 0.5;
-        if (scale == instructions.scale())
-                return;
+        if (scale == instructions.scale()) return;
+
         instructions.setScale(scale);
         emit scaleChanged();
         emit calcSizeChanged();
@@ -90,8 +89,8 @@ Palette* Renderer::palette() const {
 
 void Renderer::setPalette(Palette *palette) {
         Palette* p_palette = instructions.palette();
-        if (p_palette == palette || palette == nullptr || !palette->valid())
-                return;
+        if (p_palette == palette || palette == nullptr || !palette->valid()) return;
+
         instructions.setPalette(palette);
 }
 
@@ -105,8 +104,7 @@ void Renderer::setThreads(int threads) {
         else if (threads > 100)
                 threads = 100;
 
-        if (m_threads == threads)
-                return;
+        if (m_threads == threads) return;
         m_threads = threads;
         emit threadsChanged();
 }
@@ -120,16 +118,14 @@ void Renderer::setExponent(qreal exponent) {
                 exponent = 1;
         else if (exponent > 13)
                 exponent = 13;
-        if (instructions.exponent() == exponent)
-                return;
+        if (instructions.exponent() == exponent) return;
 
         instructions.setExponent(exponent);
         emit exponentChanged();
 }
 
 void Renderer::setPrecision(int precision) {
-        if (m_precision == precision)
-                return;
+        if (m_precision == precision) return;
         m_precision = precision;
         emit precisionChanged();
 }
@@ -207,6 +203,7 @@ void Renderer::run() {
                         iterations_done = iteration_target;
                         if (iterations_done == max_iterations)
                                 break;
+
                         iteration_target = getNextIterationTarget(iteration_target, max_iterations);
 
                         if (instructions.changed())
