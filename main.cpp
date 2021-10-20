@@ -11,6 +11,8 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
+    app.setOrganizationName("mandelbrot");
+    app.setOrganizationDomain("mandelbrot");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

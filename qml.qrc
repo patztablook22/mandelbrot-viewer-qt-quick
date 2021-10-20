@@ -4,5 +4,6 @@
         <file>RenderingMenu.qml</file>
         <file>PaletteMenu.qml</file>
         <file>Info.qml</file>
+        <file>OutputGrid.qml</file>
     </qresource>
 </RCC>
