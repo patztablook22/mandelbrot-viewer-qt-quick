@@ -11,8 +11,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
-    QQuickStyle::setStyle("Material");
     QGuiApplication app(argc, argv);
+    QQuickStyle::setStyle("Material");
+    QCoreApplication::setApplicationName("Mandelbrot Viewer");
+
     app.setOrganizationName("mandelbrot");
     app.setOrganizationDomain("mandelbrot");
 

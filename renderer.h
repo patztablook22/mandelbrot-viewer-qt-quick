@@ -66,23 +66,24 @@ protected:
 
 private:
         void prepareData(const Instructions& instructions);
-        void drawImage(size_t iteration_target, Palette* palette);
+        void drawImage(Palette* palette, size_t precision);
         void updateSurfaceFormat(const QSize& size);
 
-        int getMaxIterations(const qreal scale);
-        int getFirstIterationTarget(const int max);
-        int getNextIterationTarget(const int current, const int max);
+        int getMaxIterations(qreal scale);
+        int getFirstIterationTarget(int max);
+        int getNextIterationTarget(int current, int max);
+
+private slots:
+        void updateImage(const QImage& image, int precision);
 
 private:
         int m_threads;
         int m_precision;
         Instructions instructions;
         QAbstractVideoSurface* p_surface;
-        void updateImage(const QImage& image, int precision);
 
         QVector<MandelData> data_buffer;
         QVector<QRgb> image_buffer;
-
         QImage activeImage;
 };
 

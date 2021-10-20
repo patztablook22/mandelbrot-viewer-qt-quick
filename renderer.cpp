@@ -158,7 +158,7 @@ void Renderer::run() {
                 // if imageOnly flag,
                 // it's enough to just update the image using already calculated data
                 if (todo.imageOnly()) {
-                        drawImage(m_precision, todo.palette());
+                        drawImage(todo.palette(), m_precision);
                         QImage img(reinterpret_cast<uchar*>(image_buffer.data()), activeImage.size().width(), activeImage.size().height(), QImage::Format_RGB32);
                         emit rendered(img, m_precision);
                         continue;
@@ -199,7 +199,7 @@ void Renderer::run() {
                         QtConcurrent::blockingMap(data_buffer, worker);
 
                         // translate that buffer into image data
-                        drawImage(iteration_target, palette);
+                        drawImage(palette, iteration_target);
                         QImage img(reinterpret_cast<uchar*>(image_buffer.data()), oWidth, oHeight, QImage::Format_RGB32);
                         emit rendered(img, iteration_target);
 
@@ -247,7 +247,7 @@ void Renderer::prepareData(const Instructions& todo) {
         }
 }
 
-int Renderer::getMaxIterations(const qreal scale) {
+int Renderer::getMaxIterations(qreal scale) {
         int max_iterations = scale / 2;
         if (max_iterations < 128)
                 max_iterations = 128;
@@ -256,7 +256,7 @@ int Renderer::getMaxIterations(const qreal scale) {
         return max_iterations;
 }
 
-int Renderer::getFirstIterationTarget(const int max) {
+int Renderer::getFirstIterationTarget(int max) {
 
         int iteration_target = max / 2;
         if (iteration_target > 128)
@@ -264,19 +264,19 @@ int Renderer::getFirstIterationTarget(const int max) {
         return iteration_target;
 }
 
-int Renderer::getNextIterationTarget(const int current, const int max) {
+int Renderer::getNextIterationTarget(int current, int max) {
         int next = current + 16;
         if (next > max)
                 next = max;
         return next;
 }
 
-void Renderer::drawImage(size_t iteration_target, Palette* palette) {
+void Renderer::drawImage(Palette* palette, size_t precision) {
         for (size_t i = 0; i < data_buffer.size(); i++) {
                 int m = data_buffer[i].i;
                 if (m < 0)
                         m = 0;
-                m = m * 256 / iteration_target;
+                m = m * 256 / precision;
                 image_buffer[i] = palette->getColor(m % 256);
         }
 }

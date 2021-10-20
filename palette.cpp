@@ -18,6 +18,7 @@ QString Palette::source() const {
 }
 
 void Palette::setSource(const QString& source) {
+    m_valid = false;
     QFile fd(source);
     QTextStream stream(&fd);
 
@@ -39,6 +40,6 @@ void Palette::setSource(const QString& source) {
     emit sourceChanged();
 }
 
-const QRgb& Palette::getColor(uchar index) const {
+QRgb Palette::getColor(uchar index) const {
     return m_colors[index];
 }
