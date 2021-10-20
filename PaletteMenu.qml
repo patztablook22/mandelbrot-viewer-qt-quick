@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.12
 import Qt.labs.folderlistmodel 2.12
-import org.palette 1.0
+import org.palette 0.0
 
 Popup {
         width: 300
@@ -32,8 +32,6 @@ Popup {
         }
 
         FolderListModel {
-                // qrc:/palettes/
-                // holds all palette templates
                 id: palettes
                 folder: "qrc:/palettes/"
         }
@@ -42,16 +40,11 @@ Popup {
                 anchors.fill: parent
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ListView {
-                        // use FolderListModel above to list all palette templates
                         boundsBehavior: Flickable.StopAtBounds
                         anchors.fill: parent
                         model: palettes
                         clip: true
                         delegate: Rectangle {
-                                // basically just clickable rectangle that displays the name
-                                // e.g. preview would be possible using QQuickImageProvider
-
-                                property Palette current
                                 height: 20
                                 width: parent.width
                                 color: "transparent"
@@ -69,8 +62,6 @@ Popup {
                                     anchors.fill: parent
                                     onClicked: {
                                         renderer.palette = pal
-                                        current = pal
-                                        console.log(fileName);
                                     }
                                 }
                         }

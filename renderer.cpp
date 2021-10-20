@@ -5,7 +5,6 @@
 
 Renderer::Renderer(QObject* parent)
         : QThread(parent)
-        , m_threads(QThread::idealThreadCount())
         , m_precision(0)
         , p_surface(nullptr)
 {
@@ -13,24 +12,23 @@ Renderer::Renderer(QObject* parent)
                 this, &Renderer::rendered,
                 this, &Renderer::updateImage
         );
+
+        m_threads = QThread::idealThreadCount();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // getters and setters follow:
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
         instructions.stop();
         wait();
 }
 
-QAbstractVideoSurface* Renderer::videoSurface() const
-{
+QAbstractVideoSurface* Renderer::videoSurface() const {
         return p_surface;
 }
 
-void Renderer::setVideoSurface(QAbstractVideoSurface *surface)
-{
+void Renderer::setVideoSurface(QAbstractVideoSurface *surface) {
         if (surface == p_surface || surface == nullptr)
                 return;
         bool idle = (p_surface == nullptr);
@@ -39,41 +37,34 @@ void Renderer::setVideoSurface(QAbstractVideoSurface *surface)
                 start();
 }
 
-int Renderer::precision() const
-{
+int Renderer::precision() const {
         return m_precision;
 }
 
-QSize Renderer::outSize() const
-{
+QSize Renderer::outSize() const {
         return instructions.outSize();
 }
 
-qreal Renderer::scale() const
-{
+qreal Renderer::scale() const {
         return instructions.scale();
 }
 
-QSizeF Renderer::calcSize() const
-{
+QSizeF Renderer::calcSize() const {
         return instructions.calcSize();
 }
 
-QPointF Renderer::calcCenter() const
-{
+QPointF Renderer::calcCenter() const {
         return instructions.calcCenter();
 }
 
-void Renderer::setCalcCenter(QPointF center)
-{
+void Renderer::setCalcCenter(QPointF center) {
         if (instructions.calcCenter() == center)
                 return;
         instructions.setCalcCenter(center);
         emit calcCenterChanged();
 }
 
-void Renderer::setOutSize(QSize size)
-{
+void Renderer::setOutSize(QSize size) {
         if (size.width() < 1 || size.height() < 1)
                 return;
         if (size == instructions.outSize())
@@ -83,37 +74,32 @@ void Renderer::setOutSize(QSize size)
         emit calcSizeChanged();
 }
 
-void Renderer::setScale(qreal scale)
-{
+void Renderer::setScale(qreal scale) {
         if (scale < 0.5)
-            scale = 0.5;
+                scale = 0.5;
         if (scale == instructions.scale())
-            return;
+                return;
         instructions.setScale(scale);
         emit scaleChanged();
         emit calcSizeChanged();
 }
 
-Palette* Renderer::palette() const
-{
+Palette* Renderer::palette() const {
         return instructions.palette();
 }
 
-void Renderer::setPalette(Palette *palette)
-{
+void Renderer::setPalette(Palette *palette) {
         Palette* p_palette = instructions.palette();
         if (p_palette == palette || palette == nullptr || !palette->valid())
                 return;
         instructions.setPalette(palette);
 }
 
-int Renderer::threads() const
-{
+int Renderer::threads() const {
         return m_threads;
 }
 
-void Renderer::setThreads(int threads)
-{
+void Renderer::setThreads(int threads) {
         if (threads < 1)
                 threads = 1;
         else if (threads > 100)
@@ -125,13 +111,11 @@ void Renderer::setThreads(int threads)
         emit threadsChanged();
 }
 
-qreal Renderer::exponent() const
-{
+qreal Renderer::exponent() const {
         return instructions.exponent();
 }
 
-void Renderer::setExponent(qreal exponent)
-{
+void Renderer::setExponent(qreal exponent) {
         if (exponent < 1)
                 exponent = 1;
         else if (exponent > 13)
@@ -143,30 +127,20 @@ void Renderer::setExponent(qreal exponent)
         emit exponentChanged();
 }
 
-void Renderer::setPrecision(int precision)
-{
-    if (m_precision == precision)
-        return;
-    m_precision = precision;
-    emit precisionChanged();
+void Renderer::setPrecision(int precision) {
+        if (m_precision == precision)
+                return;
+        m_precision = precision;
+        emit precisionChanged();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // actual rendering follows:
 
-void Renderer::run()
-{
-        // previous must be stored since it has to be valid during the entire lifespan of QImage
-        // and freeing it too early => RIP
-        QRgb*  image_bits = nullptr;
-        QRgb*  image_prev = nullptr;
-        size_t image_size = 0;
+void Renderer::run() {
 
         // worker callable struct
         Worker worker;
-
-        // buffer for multi-thread calculations
-        QVector<MandelData> buffer;
 
         forever {
                 // wait for instruction changes
@@ -184,8 +158,8 @@ void Renderer::run()
                 // if imageOnly flag,
                 // it's enough to just update the image using already calculated data
                 if (todo.imageOnly()) {
-                        bufferToBits(buffer, image_bits, m_precision, todo.palette());
-                        QImage img(reinterpret_cast<uchar*>(image_bits), activeImage.size().width(), activeImage.size().height(), QImage::Format_RGB32);
+                        drawImage(m_precision, todo.palette());
+                        QImage img(reinterpret_cast<uchar*>(image_buffer.data()), activeImage.size().width(), activeImage.size().height(), QImage::Format_RGB32);
                         emit rendered(img, m_precision);
                         continue;
                 }
@@ -197,14 +171,11 @@ void Renderer::run()
 
                 // prepare data and image buffers
                 try {
-                        prepareBuffer(buffer, todo);
-                        if (oWidth * oHeight > image_size) {
-                                image_size = oWidth * oHeight;
-                                reallocateBits(&image_bits, &image_prev, image_size);
-                        }
+                        prepareData(todo);
+                        image_buffer.resize(oWidth * oHeight);
                 } catch (std::bad_alloc) {
                         qDebug() << "ran out of memory";
-                        return;
+                        qApp->quit();
                 }
 
                 // set thread count
@@ -225,11 +196,11 @@ void Renderer::run()
                         // perform multi-thread calculation on the buffer
                         worker.iterationsBegin = iterations_done;
                         worker.iterationsEnd   = iteration_target;
-                        QtConcurrent::blockingMap(buffer, worker);
+                        QtConcurrent::blockingMap(data_buffer, worker);
 
                         // translate that buffer into image data
-                        bufferToBits(buffer, image_bits, iteration_target, palette);
-                        QImage img(reinterpret_cast<uchar*>(image_bits), oWidth, oHeight, QImage::Format_RGB32);
+                        drawImage(iteration_target, palette);
+                        QImage img(reinterpret_cast<uchar*>(image_buffer.data()), oWidth, oHeight, QImage::Format_RGB32);
                         emit rendered(img, iteration_target);
 
                         // set up new precision target
@@ -245,21 +216,7 @@ void Renderer::run()
         }
 }
 
-void Renderer::reallocateBits(QRgb** bits, QRgb** prev, size_t new_size)
-{
-        // free `prev`, move `bits` to `prev`, allocate new `bits`
-        // i.e.
-        // free <- prev <- bits <- alloc
-
-        if (prev != nullptr)
-                delete[] *prev;
-        if (bits != nullptr)
-                *prev = *bits;
-        *bits = new QRgb[new_size];
-}
-
-void Renderer::prepareBuffer(QVector<MandelData> &buffer, const Instructions& todo)
-{
+void Renderer::prepareData(const Instructions& todo) {
         // `buffer` holds data for mandelbrot calculation
         // see worker.h / worker.cpp
 
@@ -271,11 +228,11 @@ void Renderer::prepareBuffer(QVector<MandelData> &buffer, const Instructions& to
         const auto& cCenter = todo.calcCenter();
 
         // resize buffer
-        buffer.resize(oWidth * oHeight);
+        data_buffer.resize(oWidth * oHeight);
 
         // now initialize its values
-        for (size_t i = 0; i < buffer.size(); i++) {
-                auto& data = buffer[i];
+        for (size_t i = 0; i < data_buffer.size(); i++) {
+                auto& data = data_buffer[i];
 
                 // get local c = (x, y)
                 int row = i / oWidth;
@@ -290,8 +247,7 @@ void Renderer::prepareBuffer(QVector<MandelData> &buffer, const Instructions& to
         }
 }
 
-inline int Renderer::getMaxIterations(const qreal scale)
-{
+int Renderer::getMaxIterations(const qreal scale) {
         int max_iterations = scale / 2;
         if (max_iterations < 128)
                 max_iterations = 128;
@@ -300,8 +256,7 @@ inline int Renderer::getMaxIterations(const qreal scale)
         return max_iterations;
 }
 
-inline int Renderer::getFirstIterationTarget(const int max)
-{
+int Renderer::getFirstIterationTarget(const int max) {
 
         int iteration_target = max / 2;
         if (iteration_target > 128)
@@ -309,47 +264,39 @@ inline int Renderer::getFirstIterationTarget(const int max)
         return iteration_target;
 }
 
-inline int Renderer::getNextIterationTarget(const int current, const int max)
-{
+int Renderer::getNextIterationTarget(const int current, const int max) {
         int next = current + 16;
         if (next > max)
                 next = max;
         return next;
 }
 
-void Renderer::bufferToBits(const QVector<MandelData>& buffer, QRgb *bits, size_t iteration_target, Palette* palette)
-{
-        // use mandelbrot data for cOLORFUL image owo
-        for (size_t i = 0; i < buffer.size(); i++) {
-                int m = buffer[i].i;
+void Renderer::drawImage(size_t iteration_target, Palette* palette) {
+        for (size_t i = 0; i < data_buffer.size(); i++) {
+                int m = data_buffer[i].i;
                 if (m < 0)
                         m = 0;
                 m = m * 256 / iteration_target;
-                bits[i] = palette->getColor(m % 256);
+                image_buffer[i] = palette->getColor(m % 256);
         }
 }
 
-void Renderer::updateSurfaceFormat(const QSize& size)
-{
-        QVideoSurfaceFormat format(size, QVideoFrame::Format_ARGB32);
+void Renderer::updateSurfaceFormat(const QSize& size) {
+        QVideoSurfaceFormat format(size, QVideoFrame::Format_RGB32);
         p_surface->start(format);
 }
 
-void Renderer::updateImage(const QImage& image, int precision)
-{
-        // activeImage holds ... active image ... for potental exporting
+void Renderer::updateImage(const QImage& image, int precision) {
         activeImage = image;
 
         // present the image as a frame
         QVideoFrame frame(image);
         p_surface->present(frame);
 
-        // let stuff know the precision of the just-rendered image
         setPrecision(precision);
 }
 
-void Renderer::exportTo(QString path)
-{
+void Renderer::exportTo(const QString& path) const {
         qDebug() << "exporting to" << path;
         activeImage.save(path);
 }

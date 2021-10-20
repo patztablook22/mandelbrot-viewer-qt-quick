@@ -1,8 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.12
 import QtMultimedia 5.12
-import org.palette 1.0
-import org.renderer 1.0
+import org.palette 0.0
+import org.renderer 0.0
 import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
@@ -112,7 +112,7 @@ ApplicationWindow {
         visible: viewGrid.checked
         anchors.fill: parent
 
-        // horizontal
+        // horizontal grid line
         Rectangle {
             x: 0
             y: parent.height / 2
@@ -121,7 +121,7 @@ ApplicationWindow {
             color: "red"
         }
 
-        // vertical
+        // vertical grid line
         Rectangle {
             x: parent.width / 2
             y: 0
