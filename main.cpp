@@ -8,10 +8,10 @@
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QQuickStyle::setStyle("Material");
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
+    QQuickStyle::setStyle("Material");
     QGuiApplication app(argc, argv);
     app.setOrganizationName("mandelbrot");
     app.setOrganizationDomain("mandelbrot");
