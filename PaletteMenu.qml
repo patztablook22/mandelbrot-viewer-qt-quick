@@ -26,10 +26,6 @@ Popup {
                         to: 0
                 }
         }
-        background: Rectangle {
-                color: "#99222222"
-                radius: 10
-        }
 
         FolderListModel {
                 id: palettes

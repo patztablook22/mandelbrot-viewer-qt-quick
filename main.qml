@@ -4,11 +4,15 @@ import QtMultimedia 5.12
 import org.palette 0.0
 import org.renderer 0.0
 import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Material 2.12
 
 ApplicationWindow {
     width: 640
     height: 480
     visible: true
+
+    Material.theme: Material.Dark
+    Material.accent: Material.BlueGrey
 
     FileDialog {
         id: exportDialog
