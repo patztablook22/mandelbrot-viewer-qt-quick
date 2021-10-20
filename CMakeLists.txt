@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
@@ -40,10 +40,10 @@ set(PROJECT_SOURCES
         main.cpp
         qml.qrc
         palettes.qrc
-        instructions.cpp
-        renderer.cpp
-        worker.cpp
-        palette.cpp
+        instructions.h instructions.cpp
+        renderer.h renderer.cpp
+        worker.h worker.cpp
+        palette.h palette.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
