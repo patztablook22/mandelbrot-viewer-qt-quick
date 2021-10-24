@@ -5,14 +5,15 @@
 Instructions::Instructions()
         : m_scale(10)
         , m_calcCenter{0, 0}
-        , m_stop(false)
         , m_exponent(2)
+        , m_stop(false)
         , m_imageOnly(true)
+        , m_changed(false)
 {
-    p_palette = new Palette;
-    p_palette->setSource(":/palettes/BWIron1.plt");
-    mutex = new QMutex;
-    condition = new QWaitCondition;
+        p_palette = new Palette;
+        p_palette->setSource(":/palettes/BWIron1.plt");
+        mutex = new QMutex;
+        condition = new QWaitCondition;
 }
 
 Instructions::~Instructions() {
@@ -51,8 +52,8 @@ void Instructions::setOutSize(QSize size) {
 }
 
 QSizeF Instructions::calcSize() const {
-    // power to make it more practical for higher scales
-    return QSizeF(m_outSize) / pow(m_scale, 2);
+        // power to make it more practical for higher scales
+        return QSizeF(m_outSize) / pow(m_scale, 2);
 }
 
 QPointF Instructions::calcCenter() const {
@@ -66,27 +67,27 @@ void Instructions::setCalcCenter(QPointF center) {
 }
 
 qreal Instructions::exponent() const {
-    return m_exponent;
+        return m_exponent;
 }
 
 void Instructions::setExponent(qreal exponent) {
-    QMutexLocker l(mutex);
-    m_exponent = exponent;
-    change();
+        QMutexLocker l(mutex);
+        m_exponent = exponent;
+        change();
 }
 
 Palette* Instructions::palette() const {
-    return p_palette;
+        return p_palette;
 }
 
 void Instructions::setPalette(Palette *palette) {
-    QMutexLocker l(mutex);
-    p_palette   = palette;
-    change(true);
+        QMutexLocker l(mutex);
+        p_palette   = palette;
+        change(true);
 }
 
 bool Instructions::imageOnly() const {
-    return m_imageOnly;
+        return m_imageOnly;
 }
 
 Instructions Instructions::getChanges() const {
@@ -112,7 +113,7 @@ void Instructions::change(bool imageOnly) {
 }
 
 bool Instructions::changed() const {
-    return m_changed;
+        return m_changed;
 }
 
 void Instructions::stop() {
