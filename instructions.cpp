@@ -5,13 +5,14 @@
 Instructions::Instructions()
         : m_scale(10)
         , m_calcCenter{0, 0}
+        , m_outSize{0, 0}
         , m_exponent(2)
         , m_stop(false)
         , m_imageOnly(true)
         , m_changed(false)
 {
         p_palette = new Palette;
-        p_palette->setSource(":/palettes/BWIron1.plt");
+        p_palette->setSource(":/palettes/Sepia.plt");
         mutex = new QMutex;
         condition = new QWaitCondition;
 }

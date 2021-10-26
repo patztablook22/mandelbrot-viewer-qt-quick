@@ -20,7 +20,7 @@ class Renderer : public QThread
         Q_PROPERTY(QPointF  calcCenter  READ calcCenter WRITE setCalcCenter  NOTIFY calcCenterChanged)
         Q_PROPERTY(int      threads     READ threads    WRITE setThreads     NOTIFY threadsChanged)
         Q_PROPERTY(int      precision   READ precision                       NOTIFY precisionChanged)
-        Q_PROPERTY(qreal    exponent    READ exponent   WRITE setExponent    NOTIFY exponentChanged);
+        Q_PROPERTY(qreal    exponent    READ exponent   WRITE setExponent    NOTIFY exponentChanged)
         Q_PROPERTY(Palette* palette     READ palette    WRITE setPalette)
 
 public:

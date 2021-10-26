@@ -12,20 +12,6 @@ Popup {
         clip: true
         modal: true
         padding: 20
-        enter: Transition {
-                NumberAnimation {
-                        property: "opacity"
-                        from: 0
-                        to: 1
-                }
-        }
-        exit: Transition {
-                NumberAnimation {
-                        property: "opacity"
-                        from: 1
-                        to: 0
-                }
-        }
 
         FolderListModel {
                 id: palettes

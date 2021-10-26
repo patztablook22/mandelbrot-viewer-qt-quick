@@ -74,3 +74,4 @@ Thumbs.db
 # Build directory
 # --------
 build/
+CMakeLists.txt.user

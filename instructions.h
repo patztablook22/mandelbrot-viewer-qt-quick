@@ -46,7 +46,6 @@ private:
 private:
         qreal m_scale;
         QPointF m_calcCenter;
-        QSizeF m_calcSize;
         QSize m_outSize;
         qreal m_exponent;
         Palette* p_palette;
