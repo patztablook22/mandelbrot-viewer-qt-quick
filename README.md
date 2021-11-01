@@ -1,14 +1,19 @@
 # mandelbrot-viewer-qt-quick
 Mandelbrot set viewer in C++ QtQuick
 
-## Installation
+## Compiling from source
 
 ```sh
 git clone https://github.com/patztablook22/mandelbrot-viewer-qt-quick
 cd mandelbrot-viewer-qt-quick
-./setup.sh
+
+./configure.sh
+./build.sh
 ```
-will create executable `mandelbrot-viewer-qt-quick/build/mandelbrot`
+will create executable `mandelbrot-viewer-qt-quick/build/src/mandelbrot`, to execute it, run:
+```sh
+./run.sh
+```
 
 ## Controls
 

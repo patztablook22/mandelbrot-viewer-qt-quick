@@ -75,3 +75,4 @@ Thumbs.db
 # --------
 build/
 CMakeLists.txt.user
+_CPack_Packages/
